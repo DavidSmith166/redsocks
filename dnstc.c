@@ -77,11 +77,17 @@ static void dnstc_pkt_from_client(int fd, short what, void *_arg)
 		return;
 	}
 
+	if ((buf.h.qr_opcode_aa_tc_rd & DNS_QR) != 0 ) {
+			dnstc_log_error(LOG_INFO, "request is not a query");
+	}
+	if (buf.h.qdcount == 0) {
+			dnstc_log_error(LOG_INFO, "there are no queries");
+	}
+
+
 	if (1
 		&& (buf.h.qr_opcode_aa_tc_rd & DNS_QR) == 0 /* query */
-		&& (buf.h.ra_z_rcode & DNS_Z) == 0 /* Z is Zero */
 		&& buf.h.qdcount /* some questions */
-		&& !buf.h.ancount && !buf.h.nscount /* no answers */
 	) {
 		buf.h.qr_opcode_aa_tc_rd |= DNS_QR;
 		buf.h.qr_opcode_aa_tc_rd |= DNS_TC;
